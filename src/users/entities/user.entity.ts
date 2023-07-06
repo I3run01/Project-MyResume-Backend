@@ -15,6 +15,9 @@ export class User {
     @Prop()
     password: string
 
+    @Prop()
+    status: 'Active' | 'Pending'
+
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

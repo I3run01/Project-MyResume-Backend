@@ -1,16 +1,19 @@
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { hash, compare as bcryptCompare } from 'bcrypt';
+import CreateUserDto from './dto/create-user.dto';
+import { hash, compare } from 'bcrypt';
 import { JwtService } from "@nestjs/jwt";
 import {Response, Request} from 'express';
+import { mailServices } from './../utils/functions'
 import { 
   Controller,
   Post,
   Body,
   Res,
-  Get,
   Req,
   Delete,
+  HttpException,
+  HttpStatus,
+  NotFoundException,
   UnauthorizedException,
   BadRequestException
 } from '@nestjs/common';
@@ -24,64 +27,67 @@ export class UsersController {
 
   @Post('signup')
   async signUp(
-    @Body('email') email:string,
-    @Body('password') password:string,
-    @Res({passthrough: true}) response: Response
+    @Body() createUserDto: CreateUserDto,
+    @Req() request: Request
   ) {
 
-    let user = await this.usersService.findByEmail(email)
+    const { email, password } = createUserDto;
 
-    if(user) {
-      throw new BadRequestException('user already exists')
+    if (!email || !password) throw new BadRequestException('Invalid credentials');
+
+    let user = await this.usersService.findByEmail(email);
+
+    if (user?.status !== "Active" && user) {
+        const confirmationCode:string = this.jwtService.sign({userId: user.id});
+        const emailConfirmationLink = `https://yournote.cloud/emailConfirmation/${confirmationCode}`;
+        mailServices.sendConfirmationEmail(user.email, emailConfirmationLink, user?.name);
+
+        throw new UnauthorizedException("Pending Account. Please Verify Your Email!, a new link was sent to your email");
     }
+    
+    if (user) throw new BadRequestException('User already exists');
 
-    const createUserDto:CreateUserDto = {
-      name: null,
-      email,
-      password: await hash(password, 10),
-      avatarImage: null
-    }
+    createUserDto.password = await hash(createUserDto.password, 10);
+    let newUser = await this.usersService.create(createUserDto);
 
-    user = await this.usersService.create(createUserDto);
+    const confirmationCode:string = this.jwtService.sign({userId: newUser.id});
+    const emailConfirmationLink = `https://yournote.cloud/emailConfirmation/${confirmationCode}`;
+    mailServices.sendConfirmationEmail(createUserDto.email, emailConfirmationLink, createUserDto?.name);
 
-    delete user.password
-
-    if(user.password) user.password = null
-
-    const jwt = await this.jwtService.signAsync({id: user._id});
-
-    response.cookie('jwt', jwt, {httpOnly: true});
-
-    return user
+    return newUser;
   }
 
   @Post('signin')
   async signIn(
-    @Body('email') email:string,
-    @Body('password') password:string,
-    @Res({passthrough: true}) response: Response
+    @Body() createUserDto: CreateUserDto,
+    @Req() request: Request,
+    @Res({passthrough: true}) response
   ) {
-    const user = await this.usersService.findByEmail(email)
+      const { email, password } = createUserDto;
 
-    if(!user) {
-      throw new BadRequestException('invaid credentials')
-    }
+      if (!email || !password) throw new BadRequestException('Invalid credentials');
 
-    if(! await bcryptCompare(password, user.password)) {
-      throw new BadRequestException('invalid credentials')
-    }
+      let user = await this.usersService.findByEmail(email);
+  
+      if (!user) throw new NotFoundException('No user found');
 
-    const jwt = await this.jwtService.signAsync({id: user.id});
+      if (! await compare(password, user.password as string)) throw new UnauthorizedException('Invalid credentials');
 
-    response.cookie('jwt', jwt, {httpOnly: true});
+      if (user.status !== "Active") {
+          const confirmationCode:string = this.jwtService.sign({userId: user.id});
+          console.log(confirmationCode);
+          const emailConfirmationLink = `https://yournote.cloud/emailConfirmation/${confirmationCode}`;
+          mailServices.sendConfirmationEmail(user.email, emailConfirmationLink, user.name);
+          throw new UnauthorizedException("Pending Account. Please Verify Your Email!, a new link was sent in your email");
+      }
+      
+      let token: string = this.jwtService.sign({userId: user.id});
+      
+      response.cookie('jwt', token, { sameSite: 'none', secure: true, httpOnly: true });
 
-    delete user.password
+      user.password = '';
 
-    if (user.password) user.password = null
-
-    return user
+      return user;
   }
-
-
 
 }

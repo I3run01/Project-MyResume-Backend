@@ -1,8 +1,5 @@
 import axios from 'axios'
 import { createTransport } from 'nodemailer';
-import dotenv from 'dotenv'
-
-dotenv.config()
 
 export const apiRequest = {
     async googleLogin(token: string): Promise<any> {
@@ -21,8 +18,8 @@ export const mailServices = {
     
     sendConfirmationEmail(email: string, link: string,  name?: string) {
         
-        const user = process.env.EMAIL_USER;
-        const pass = process.env.EMAIL_PASS;
+        const user = process.env.EMAIL_USER as string;
+        const pass = process.env.EMAIL_PASS as string;
 
         const transport = createTransport({
             service: "outlook",
