@@ -7,9 +7,11 @@ import { mailServices } from './../utils/functions'
 import { 
   Controller,
   Post,
+  Get,
   Body,
   Res,
   Req,
+  Param,
   Delete,
   HttpException,
   HttpStatus,
@@ -35,7 +37,13 @@ export class UsersController {
 
     if (!email || !password) throw new BadRequestException('Invalid credentials');
 
-    let user = await this.usersService.findByEmail(email);
+    let user = null
+
+    try {
+      user = await this.usersService.findByEmail(email);
+    } catch {
+      user = null
+    }
 
     if (user?.status !== "Active" && user) {
         const confirmationCode:string = this.jwtService.sign({userId: user.id});
@@ -51,6 +59,7 @@ export class UsersController {
     let newUser = await this.usersService.create(createUserDto);
 
     const confirmationCode:string = this.jwtService.sign({userId: newUser.id});
+
     const emailConfirmationLink = `https://yournote.cloud/emailConfirmation/${confirmationCode}`;
     mailServices.sendConfirmationEmail(createUserDto.email, emailConfirmationLink, createUserDto?.name);
 
@@ -88,5 +97,72 @@ export class UsersController {
       user.password = '';
 
       return user;
+  }
+
+  @Get('/')
+    async user(@Req() req: Request) {
+        const token = req.cookies['jwt']
+
+        let data: any;
+
+        try {
+            data = this.jwtService.decode(token);
+        } catch (error) {
+            throw new UnauthorizedException('Unauthorized request');
+        }
+
+        let userId = data.userId
+
+        let user = await this.usersService.findById(userId)
+
+        if (!user) {
+            throw new BadRequestException("No user found");
+        }
+
+        if (user.status !== "Active") {
+            const confirmationCode:string = this.jwtService.sign({userId: user.id});
+
+            mailServices.sendConfirmationEmail(user.email, confirmationCode, user.name)
+
+            throw new UnauthorizedException("Pending Account. Please Verify Your Email!. We sent a new link to your email");
+        }
+
+        return user;
+    }
+
+  @Get('/confirm-email/:token')
+    async emailConfirmation(@Param('token') token: string, @Res() res) {
+
+      let data = null;
+
+      try {
+          data = this.jwtService.decode(token);
+      } catch (error) {
+          return res.status(HttpStatus.BAD_REQUEST).json({
+              message: 'Invalid token',
+          });
+      }
+
+      let userId = data.userId
+      
+      let user = await this.usersService.findById(userId)    
+
+      if (!user) return res.status(HttpStatus.BAD_REQUEST).json({
+          message: 'No user found',
+      });
+
+      await this.usersService.updateStatus(user.id, 'Active')
+
+      let userToken: string = this.jwtService.sign({userId: user.id})
+
+      res.cookie('jwt', userToken, { sameSite: 'none', secure: true, httpOnly: true })
+
+      return res.json(user)
+  }
+
+  @Get('/signout')
+  async signout(@Res({ passthrough: true }) res) {
+    res.clearCookie('jwt', { sameSite: 'none', secure: true, httpOnly: true });
+    return { message: 'success' };
   }
 }
