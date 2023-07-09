@@ -103,7 +103,7 @@ export class UsersController {
     async user(@Req() req: Request) {
         const token = req.cookies['jwt']
 
-        let data: any;
+        let data = null;
 
         try {
             data = this.jwtService.decode(token);
@@ -163,5 +163,26 @@ export class UsersController {
   async signout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie('jwt', { sameSite: 'none', secure: true, httpOnly: true });
     return { message: 'success' };
+  }
+
+  @Delete('/')
+  async deleteUser(@Req() req: Request) {
+    const token = await req.cookies['jwt']
+
+    if (!token) throw new UnauthorizedException('Unauthorized request');
+    
+    let data = null;
+
+    try {
+        data = this.jwtService.decode(token);
+    } catch (error) {
+        throw new UnauthorizedException('Unauthorized request');
+    }
+
+    let userId = data.userId
+
+    let status = await this.usersService.deleteOne(userId)
+
+    return status
   }
 }

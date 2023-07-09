@@ -15,7 +15,7 @@ export class UsersService {
   async findById(id: string): Promise<UserDocument> {
     const user = await this.userModel.findById(id)
     if (!user) {
-        throw new NotFoundException(`User with id ${id} not found`);
+        throw new NotFoundException(`User not found`);
     }
     return user;
   }
@@ -35,7 +35,7 @@ export class UsersService {
   async updateStatus(id: string, status: 'Active' | 'Pending'): Promise<UserDocument> {
     const user = await this.userModel.findByIdAndUpdate(id, { status }, { new: true });
     if (!user) {
-        throw new NotFoundException(`User with id ${id} not found`);
+        throw new NotFoundException(`User not found`);
     }
     return user;
   }
@@ -43,7 +43,7 @@ export class UsersService {
   async updatePassword(id: string, password: string): Promise<UserDocument> {
     const user = await this.userModel.findByIdAndUpdate(id, { password }, { new: true });
     if (!user) {
-        throw new NotFoundException(`User with id ${id} not found`);
+        throw new NotFoundException(`User not found`);
     }
     return user;
   }
