@@ -131,37 +131,36 @@ export class UsersController {
     }
 
   @Get('/confirm-email/:token')
-    async emailConfirmation(@Param('token') token: string, @Res() res) {
+    async emailConfirmation(
+      @Param('token') token: string,
+      @Res({passthrough: true}) response: Response
+    ) {
 
       let data = null;
 
       try {
           data = this.jwtService.decode(token);
       } catch (error) {
-          return res.status(HttpStatus.BAD_REQUEST).json({
-              message: 'Invalid token',
-          });
+        throw new UnauthorizedException('Unauthorized request');
       }
 
       let userId = data.userId
       
       let user = await this.usersService.findById(userId)    
 
-      if (!user) return res.status(HttpStatus.BAD_REQUEST).json({
-          message: 'No user found',
-      });
+      if (!user) throw new BadRequestException("No user found");
 
       await this.usersService.updateStatus(user.id, 'Active')
 
       let userToken: string = this.jwtService.sign({userId: user.id})
 
-      res.cookie('jwt', userToken, { sameSite: 'none', secure: true, httpOnly: true })
+      response.cookie('jwt', userToken, { sameSite: 'none', secure: true, httpOnly: true })
 
-      return res.json(user)
+      return user
   }
 
   @Get('/signout')
-  async signout(@Res({ passthrough: true }) res) {
+  async signout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie('jwt', { sameSite: 'none', secure: true, httpOnly: true });
     return { message: 'success' };
   }
