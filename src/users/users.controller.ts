@@ -68,8 +68,8 @@ export class UsersController {
 
   @Post('signin')
   async signIn(
-    @Body() email: string,
-    @Body() password: string,
+    @Body('email') email: string,
+    @Body('password') password: string,
     @Req() request: Request,
     @Res({passthrough: true}) response: Response
   ) {
@@ -224,7 +224,7 @@ export class UsersController {
   }
 
   @Post('/forgot-password')
-  async sendPasswordResetLink(@Body() email: string) {
+  async sendPasswordResetLink(@Body('email') email: string) {
 
       if (!email) throw new BadRequestException('Invalid credentials');
 
@@ -243,11 +243,11 @@ export class UsersController {
       return { message: 'Password reset link sent to your email' };
   }
 
-  @Get('/reset-password/:token')
-  async pdatePasswordWithToken(
+  @Post('/reset-password/:token')
+  async updatePasswordWithToken(
     @Param('token') token: string,
     @Body() password: string,
-    @Res() res: Response
+    @Res({passthrough: true}) res: Response
   ) 
   {
     if(!password || !token) throw new BadRequestException('Invalid credentials');
@@ -261,7 +261,10 @@ export class UsersController {
     } catch (error) {
         throw new UnauthorizedException('Unauthorized request');
     }
-    let userId = data._id
+
+    let userId = data.userId
+
+    console.log(data)
 
     if (!data) throw new UnauthorizedException('Unauthorized request');
 
@@ -275,7 +278,7 @@ export class UsersController {
 
     await this.usersService.updateStatus(userId, 'Active')
 
-    let cookieToken: string = this.jwtService.sign(userId)
+    let cookieToken: string = this.jwtService.sign({ userId: userId });
     
     res.cookie('jwt', cookieToken, { sameSite: 'none', secure: true, httpOnly: true })
 
