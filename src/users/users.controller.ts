@@ -93,7 +93,7 @@ export class UsersController {
       
       response.cookie('jwt', token, { sameSite: 'none', secure: true, httpOnly: true });
 
-      user.password = '';
+      user.password = null;
 
       return user;
   }
@@ -125,6 +125,8 @@ export class UsersController {
 
             throw new UnauthorizedException("Pending Account. Please Verify Your Email!. We sent a new link to your email");
         }
+
+        user.password = null
 
         return user;
     }
@@ -216,9 +218,9 @@ export class UsersController {
 
       let userToken: string = this.jwtService.sign({userId: user.id});
 
-      user.password = '';
-      
       res.cookie('jwt', userToken, { sameSite: 'none', secure: true, httpOnly: true });
+      
+      user.password = null;
       
       return user;
   }
@@ -264,8 +266,6 @@ export class UsersController {
 
     let userId = data.userId
 
-    console.log(data)
-
     if (!data) throw new UnauthorizedException('Unauthorized request');
 
     let user = await this.usersService.findById(userId)
@@ -274,13 +274,13 @@ export class UsersController {
 
     await this.usersService.updatePassword(userId, hashPassword)
 
-    user.password = ''
-
     await this.usersService.updateStatus(userId, 'Active')
-
+    
     let cookieToken: string = this.jwtService.sign({ userId: userId });
     
     res.cookie('jwt', cookieToken, { sameSite: 'none', secure: true, httpOnly: true })
+    
+    user.password = null
 
     return user;
 
