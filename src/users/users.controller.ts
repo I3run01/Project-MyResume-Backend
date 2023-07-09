@@ -3,7 +3,7 @@ import CreateUserDto from './dto/create-user.dto';
 import { hash, compare } from 'bcrypt';
 import { JwtService } from "@nestjs/jwt";
 import {Response, Request} from 'express';
-import { mailServices } from './../utils/functions'
+import { mailServices, apiRequest } from './../utils/functions'
 import { 
   Controller,
   Post,
@@ -68,12 +68,11 @@ export class UsersController {
 
   @Post('signin')
   async signIn(
-    @Body() createUserDto: CreateUserDto,
+    @Body() email: string,
+    @Body() password: string,
     @Req() request: Request,
-    @Res({passthrough: true}) response
+    @Res({passthrough: true}) response: Response
   ) {
-      const { email, password } = createUserDto;
-
       if (!email || !password) throw new BadRequestException('Invalid credentials');
 
       let user = await this.usersService.findByEmail(email);
@@ -185,4 +184,105 @@ export class UsersController {
 
     return status
   }
+
+  // TODO: test this method after create frontend google-sigin
+  @Post('/google-signin')
+  async googleSignin(
+      @Res({ passthrough: true }) res: Response,
+      @Body() googleToken: string
+    ) {
+
+      if(!googleToken) throw new BadRequestException('No token sent');
+
+      let googleUser = JSON.parse(await apiRequest.googleLogin(googleToken));
+
+      let user = await this.usersService.findByEmail(googleUser.email);
+
+      if (!user) {
+          let createUserDto: CreateUserDto = {
+            name: googleUser.name,
+            email: googleUser.email,
+            password: await hash(String(Math.random()), 10),
+            avatarImage: googleUser.picture,
+            status: 'Active'
+          }
+
+          user = await this.usersService.create(createUserDto);
+      }
+
+      if(user.status != 'Active') {
+          await this.usersService.updateStatus(user.id, 'Active');
+      }
+
+      let userToken: string = this.jwtService.sign({userId: user.id});
+
+      user.password = '';
+      
+      res.cookie('jwt', userToken, { sameSite: 'none', secure: true, httpOnly: true });
+      
+      return user;
+  }
+
+  @Post('/forgot-password')
+  async sendPasswordResetLink(@Body() email: string) {
+
+      if (!email) throw new BadRequestException('Invalid credentials');
+
+      const user = await this.usersService.findByEmail(email);
+
+      if (!user) {
+        throw new BadRequestException("No user found");
+      }
+
+      let resetPasswordToken: string = this.jwtService.sign({userId: user._id});
+
+      const resetLink = `https://yournote.cloud/reset-password/${resetPasswordToken}`;
+  
+      mailServices.sendConfirmationEmail(user.email, resetLink, user.name)
+
+      return { message: 'Password reset link sent to your email' };
+  }
+
+  @Get('/reset-password/:token')
+  async pdatePasswordWithToken(
+    @Param('token') token: string,
+    @Body() password: string,
+    @Res() res: Response
+  ) 
+  {
+    if(!password || !token) throw new BadRequestException('Invalid credentials');
+
+    let hashPassword:string = await hash(String(password), 10)
+
+    let data = null
+    
+    try {
+      data = this.jwtService.decode(token);
+    } catch (error) {
+        throw new UnauthorizedException('Unauthorized request');
+    }
+    let userId = data._id
+
+    if (!data) throw new UnauthorizedException('Unauthorized request');
+
+    let user = await this.usersService.findById(userId)
+
+    if (!user) throw new BadRequestException("No user found");
+
+    await this.usersService.updatePassword(userId, hashPassword)
+
+    user.password = ''
+
+    await this.usersService.updateStatus(userId, 'Active')
+
+    let cookieToken: string = this.jwtService.sign(userId)
+    
+    res.cookie('jwt', cookieToken, { sameSite: 'none', secure: true, httpOnly: true })
+
+    return user;
+
+  }
+
+
+
 }
