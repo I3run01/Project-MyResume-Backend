@@ -46,7 +46,7 @@ export class UsersController {
     }
 
     if (user?.status !== "Active" && user) {
-        const confirmationCode:string = this.jwtService.sign({userId: user.id});
+        const confirmationCode:string = this.jwtService.sign({userId: user._id});
         const emailConfirmationLink = `https://yournote.cloud/emailConfirmation/${confirmationCode}`;
         mailServices.sendConfirmationEmail(user.email, emailConfirmationLink, user?.name);
 
@@ -58,7 +58,7 @@ export class UsersController {
     createUserDto.password = await hash(createUserDto.password, 10);
     let newUser = await this.usersService.create(createUserDto);
 
-    const confirmationCode:string = this.jwtService.sign({userId: newUser.id});
+    const confirmationCode:string = this.jwtService.sign({userId: newUser._id});
 
     const emailConfirmationLink = `https://yournote.cloud/emailConfirmation/${confirmationCode}`;
     mailServices.sendConfirmationEmail(createUserDto.email, emailConfirmationLink, createUserDto?.name);
@@ -82,14 +82,14 @@ export class UsersController {
       if (! await compare(password, user.password as string)) throw new UnauthorizedException('Invalid credentials');
 
       if (user.status !== "Active") {
-          const confirmationCode:string = this.jwtService.sign({userId: user.id});
+          const confirmationCode:string = this.jwtService.sign({userId: user._id});
           console.log(confirmationCode);
           const emailConfirmationLink = `https://yournote.cloud/emailConfirmation/${confirmationCode}`;
           mailServices.sendConfirmationEmail(user.email, emailConfirmationLink, user.name);
           throw new UnauthorizedException("Pending Account. Please Verify Your Email!, a new link was sent in your email");
       }
       
-      let token: string = this.jwtService.sign({userId: user.id});
+      let token: string = this.jwtService.sign({userId: user._id});
       
       response.cookie('jwt', token, { sameSite: 'none', secure: true, httpOnly: true });
 
@@ -119,7 +119,7 @@ export class UsersController {
         }
 
         if (user.status !== "Active") {
-            const confirmationCode:string = this.jwtService.sign({userId: user.id});
+            const confirmationCode:string = this.jwtService.sign({userId: user._id});
 
             mailServices.sendConfirmationEmail(user.email, confirmationCode, user.name)
 
@@ -153,7 +153,7 @@ export class UsersController {
 
       await this.usersService.updateStatus(user.id, 'Active')
 
-      let userToken: string = this.jwtService.sign({userId: user.id})
+      let userToken: string = this.jwtService.sign({userId: user._id})
 
       response.cookie('jwt', userToken, { sameSite: 'none', secure: true, httpOnly: true })
 
@@ -187,7 +187,6 @@ export class UsersController {
     return status
   }
 
-  // TODO: test this method after create frontend google-sigin
   @Post('/google-signin')
   async googleSignin(
       @Res({ passthrough: true }) res: Response,
@@ -198,7 +197,13 @@ export class UsersController {
 
       let googleUser = JSON.parse(await apiRequest.googleLogin(googleToken));
 
-      let user = await this.usersService.findByEmail(googleUser.email);
+      let user = null
+
+      try {
+        user = await this.usersService.findByEmail(googleUser.email);
+      } catch {
+        user = null
+      }
 
       if (!user) {
           let createUserDto: CreateUserDto = {
@@ -213,10 +218,10 @@ export class UsersController {
       }
 
       if(user.status != 'Active') {
-          await this.usersService.updateStatus(user.id, 'Active');
+          await this.usersService.updateStatus(user._id, 'Active');
       }
 
-      let userToken: string = this.jwtService.sign({userId: user.id});
+      let userToken: string = this.jwtService.sign({userId: user._id});
 
       res.cookie('jwt', userToken, { sameSite: 'none', secure: true, httpOnly: true });
       
@@ -285,7 +290,4 @@ export class UsersController {
     return user;
 
   }
-
-
-
 }
