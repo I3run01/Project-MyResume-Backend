@@ -191,7 +191,7 @@ export class UsersController {
   @Post('/google-signin')
   async googleSignin(
       @Res({ passthrough: true }) res: Response,
-      @Body() googleToken: string
+      @Body('googleToken') googleToken: string
     ) {
 
       if(!googleToken) throw new BadRequestException('No token sent');
