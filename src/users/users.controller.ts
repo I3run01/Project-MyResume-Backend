@@ -128,6 +128,8 @@ export class UsersController {
 
         user.password = null
 
+        console.log(user)
+
         return user;
     }
 
@@ -249,11 +251,11 @@ export class UsersController {
 
       return { message: 'Password reset link sent to your email' };
   }
-
+''
   @Post('/reset-password/:token')
   async updatePasswordWithToken(
     @Param('token') token: string,
-    @Body() password: string,
+    @Body('password') password: string,
     @Res({passthrough: true}) res: Response
   ) 
   {
