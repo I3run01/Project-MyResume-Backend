@@ -13,8 +13,6 @@ import {
   Req,
   Param,
   Delete,
-  HttpException,
-  HttpStatus,
   NotFoundException,
   UnauthorizedException,
   BadRequestException
