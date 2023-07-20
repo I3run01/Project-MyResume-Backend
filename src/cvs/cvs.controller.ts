@@ -49,4 +49,28 @@ export class CvsController {
 
     return response
   }
+
+  @Get('')
+  async getUserCvs(
+    @Req() req: Request,
+    @Res({passthrough: true}) res: Response
+  ) {
+    const token = req.cookies['jwt']
+    const data = this.jwtService.decode(token);
+
+    if (!data || !data['userId']) {
+      throw new UnauthorizedException('Unauthorized request');
+    }
+    
+    let userId = data['userId']
+    
+    if (!data) {
+      throw new UnauthorizedException('Unauthorized request');
+    }
+
+    let cvs = await this.cvsService.findByUserId(userId)
+
+    return cvs
+  }
+  
 }

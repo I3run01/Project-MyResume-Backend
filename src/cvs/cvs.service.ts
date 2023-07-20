@@ -12,4 +12,12 @@ export class CvsService {
   create(createCvDto: CreateCvDto) {
     return this.cvModel.create(createCvDto);
   }
+
+  async findByUserId(userId: string): Promise<CvsDocument[]> {
+    const cvs = await this.cvModel.find({ userId: userId }).exec();
+    if (!cvs) {
+      throw new NotFoundException(`CVs with userId ${userId} not found`);
+    }
+    return cvs;
+  }
 }
