@@ -72,5 +72,30 @@ export class CvsController {
 
     return cvs
   }
+
+  @Delete('')
+  async deleteCv(
+    @Req() req: Request,
+    @Res({passthrough: true}) res: Response
+  ) {
+    const token = req.cookies['jwt']
+    let cvId = //TODO: id receiver from url
+
+    const data = this.jwtService.decode(token);
+
+    if (!data || !data['userId']) {
+      throw new UnauthorizedException('Unauthorized request');
+    }
+    
+    let userId = data['userId']
+    
+    if (!data) {
+      throw new UnauthorizedException('Unauthorized request');
+    }
+
+    //TODO: check if the userId is the same of the userId in cv, if it is not, back UnauthorizedException('Unauthorized request');
+
+    //TODO: send the cvId of the cv that will be deteted in sercice
+  }
   
 }
