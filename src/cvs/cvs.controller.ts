@@ -24,19 +24,29 @@ export class CvsController {
 
   @Post('')
   async createCv(
-    @Body() createUserDto: CvsDto,
     @Req() req: Request,
-    @Res() res: Response
+    @Res({passthrough: true}) res: Response
   ) {
     const token = req.cookies['jwt']
     const data = this.jwtService.decode(token);
+
+    if (!data || !data['userId']) {
+      throw new UnauthorizedException('Unauthorized request');
+    }
+    
+    let userId = data['userId']
     
     if (!data) {
       throw new UnauthorizedException('Unauthorized request');
     }
 
-    console.log(data)
-  
-    return {test: true}
+    const newCv: CvsDto = {
+      name: 'new name',
+      userId: userId
+    }
+
+    let response = await this.cvsService.create(newCv)
+
+    return response
   }
 }

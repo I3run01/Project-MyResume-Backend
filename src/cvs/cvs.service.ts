@@ -1,22 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import CreateCvDto from './dto/create-cv.dto';
+import { Cvs, CvsDocument } from './entities/cv.entity';
+import { Model } from 'mongoose';
 
 
 @Injectable()
 export class CvsService {
+  constructor(@InjectModel(Cvs.name) private cvModel: Model<CvsDocument>) {}
+
   create(createCvDto: CreateCvDto) {
-    return 'This action adds a new cv';
-  }
-
-  findAll() {
-    return `This action returns all cvs`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} cv`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} cv`;
+    return this.cvModel.create(createCvDto);
   }
 }

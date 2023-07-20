@@ -1,24 +1,24 @@
 type CvsDto = {
     userId: string
     name: string
-    personalDatas: {
+    personalDatas?: {
         fullName: string,
         birthday: string,
         location: string,
-        number: string,
+        phone: string,
     }
-    resume: string
-    college: {
+    resume?: string
+    colleges?: {
         trainningArea: string
         collegeName: string
         graduationYear: string
     }[]
-    languages: {
+    languages?: {
         language: string
         level: string 
     }[]
-    abilities: string[]
-    socialMedias: {
+    abilities?: string[]
+    socialMedias?: {
         title: string
         link: string
     }[]
