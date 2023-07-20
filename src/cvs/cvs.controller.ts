@@ -73,29 +73,28 @@ export class CvsController {
     return cvs
   }
 
-  @Delete('')
+  @Delete(':cvId')
   async deleteCv(
     @Req() req: Request,
+    @Param('cvId') cvId: string,
     @Res({passthrough: true}) res: Response
   ) {
     const token = req.cookies['jwt']
-    let cvId = //TODO: id receiver from url
-
     const data = this.jwtService.decode(token);
 
     if (!data || !data['userId']) {
       throw new UnauthorizedException('Unauthorized request');
     }
     
-    let userId = data['userId']
-    
-    if (!data) {
+    const userId = data['userId']
+    const cv = await this.cvsService.findById(cvId)
+
+    if (!cv || cv.userId !== userId) {
       throw new UnauthorizedException('Unauthorized request');
     }
 
-    //TODO: check if the userId is the same of the userId in cv, if it is not, back UnauthorizedException('Unauthorized request');
-
-    //TODO: send the cvId of the cv that will be deteted in sercice
+    await this.cvsService.delete(cvId)
+    return {message: "CV deleted successfully."}
   }
   
 }

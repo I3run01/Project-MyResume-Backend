@@ -20,4 +20,20 @@ export class CvsService {
     }
     return cvs;
   }
+
+  async findById(cvId: string): Promise<CvsDocument> {
+    const cv = await this.cvModel.findById(cvId).exec();
+    if (!cv) {
+      throw new NotFoundException(`CV with id ${cvId} not found`);
+    }
+    return cv;
+  }
+
+  async delete(cvId: string): Promise<any> {
+    const cv = await this.cvModel.findByIdAndRemove(cvId).exec();
+    if (!cv) {
+      throw new NotFoundException(`CV with id ${cvId} not found`);
+    }
+    return cv;
+  }
 }
