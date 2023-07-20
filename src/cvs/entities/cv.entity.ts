@@ -5,46 +5,29 @@ export type CvsDocument = Cvs & Document;
 
 @Schema()
 export class Cvs {
-  @Prop()
+  @Prop({ required: true })
   userId: string;
 
-  @Prop()
-  name: String;
+  @Prop({ required: true })
+  name: string;
 
-  @Prop({
-    type: {
-      fullName: String,
-      birthday: String,
-      location: String,
-      number: String,
-    }
-  })
-  personalDatas: Record<string, any>;
+  @Prop()
+  personalDatas: object[];
 
   @Prop()
   resume: string;
 
-  @Prop([{
-    trainingArea: String,
-    collegeName: String,
-    graduationYear: String,
-  }])
-  colleges: Record<string, any>[];
+  @Prop()
+  colleges: object[];
 
-  @Prop([{
-    language: String,
-    level: String,
-  }])
-  languages: Record<string, any>[];
+  @Prop()
+  languages: object[];
 
-  @Prop([String])
-  abilities: string[];
+  @Prop()
+  abilities: object[];
 
-  @Prop([{
-    title: String,
-    link: String,
-  }])
-  socialMedias: Record<string, any>[];
+  @Prop()
+  socialMedias: object[];
 }
 
 export const CvsSchema = SchemaFactory.createForClass(Cvs);

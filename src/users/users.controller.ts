@@ -249,7 +249,7 @@ export class UsersController {
 
       return { message: 'Password reset link sent to your email' };
   }
-''
+
   @Post('/reset-password/:token')
   async updatePasswordWithToken(
     @Param('token') token: string,

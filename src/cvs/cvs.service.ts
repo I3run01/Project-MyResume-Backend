@@ -36,4 +36,60 @@ export class CvsService {
     }
     return cv;
   }
+
+  async updateCvName(cvId: string, newCvName: string): Promise<CvsDocument> {
+    const cv = await this.cvModel.findByIdAndUpdate(cvId, { name: newCvName }, { new: true }).exec();
+    if (!cv) {
+      throw new NotFoundException(`CV with id ${cvId} not found`);
+    }
+    return cv;
+  }
+
+  async updateResume(cvId: string, newResume: string): Promise<CvsDocument> {
+    const cv = await this.cvModel.findByIdAndUpdate(cvId, { resume: newResume }, { new: true }).exec();
+    if (!cv) {
+      throw new NotFoundException(`CV with id ${cvId} not found`);
+    }
+    return cv;
+  }
+
+  async updatePersonalDatas(cvId: string, newUpdatePersonalDatas: string): Promise<CvsDocument> {
+    const cv = await this.cvModel.findByIdAndUpdate(cvId, { personalDatas: newUpdatePersonalDatas }, { new: true }).exec();
+    if (!cv) {
+      throw new NotFoundException(`CV with id ${cvId} not found`);
+    }
+    return cv;
+  }
+
+  async updateColleges(cvId: string, newColleges: string): Promise<CvsDocument> {
+    const cv = await this.cvModel.findByIdAndUpdate(cvId, { colleges: newColleges }, { new: true }).exec();
+    if (!cv) {
+      throw new NotFoundException(`CV with id ${cvId} not found`);
+    }
+    return cv;
+  }
+
+  async updateLanguages(cvId: string, newLanguages: string): Promise<CvsDocument> {
+    const cv = await this.cvModel.findByIdAndUpdate(cvId, { languages: newLanguages }, { new: true }).exec();
+    if (!cv) {
+      throw new NotFoundException(`CV with id ${cvId} not found`);
+    }
+    return cv;
+  }
+
+  async updateAbilities(cvId: string, newAbilities: string): Promise<CvsDocument> {
+    const cv = await this.cvModel.findByIdAndUpdate(cvId, { abilities: newAbilities }, { new: true }).exec();
+    if (!cv) {
+      throw new NotFoundException(`CV with id ${cvId} not found`);
+    }
+    return cv;
+  }
+
+  async updateSocialMedias(cvId: string, newSocialMedias: string): Promise<CvsDocument> {
+    const cv = await this.cvModel.findByIdAndUpdate(cvId, { socialMedias: newSocialMedias }, { new: true }).exec();
+    if (!cv) {
+      throw new NotFoundException(`CV with id ${cvId} not found`);
+    }
+    return cv;
+  }
 }
