@@ -3,6 +3,51 @@ import { Document } from 'mongoose';
 
 export type CvsDocument = Cvs & Document;
 
+@Schema({ timestamps: true, _id: false })
+export class PersonalData {
+  @Prop()
+  fullName: string;
+
+  @Prop()
+  birthday: string;
+
+  @Prop()
+  location: string;
+
+  @Prop()
+  phone: string;
+}
+
+@Schema({ timestamps: true, _id: false })
+export class Colleges {
+  @Prop()
+  trainningArea: string;
+
+  @Prop()
+  collegeName: string;
+
+  @Prop()
+  graduationYear: string;
+}
+
+@Schema({ timestamps: true, _id: false })
+export class Language {
+  @Prop()
+  language: string;
+
+  @Prop()
+  level: string;
+}
+
+@Schema({ timestamps: true, _id: false })
+export class SocialMedia {
+  @Prop()
+  title: string;
+
+  @Prop()
+  link: string;
+}
+
 @Schema()
 export class Cvs {
   @Prop({ required: true })
@@ -12,22 +57,25 @@ export class Cvs {
   name: string;
 
   @Prop()
-  personalDatas: object[];
-
-  @Prop()
   resume: string;
 
   @Prop()
-  colleges: object[];
+  objectives: string;
 
   @Prop()
-  languages: object[];
+  personalDatas: PersonalData;
 
   @Prop()
-  abilities: object[];
+  colleges: Colleges[];
 
   @Prop()
-  socialMedias: object[];
+  languages: Language[];
+
+  @Prop()
+  abilities: string[];
+
+  @Prop()
+  socialMedias: SocialMedia[];
 }
 
 export const CvsSchema = SchemaFactory.createForClass(Cvs);

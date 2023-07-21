@@ -1,13 +1,15 @@
 type CvsDto = {
     userId: string
     name: string
+    resume: string
+    objectives: string
     personalDatas?: {
         fullName: string,
         birthday: string,
         location: string,
         phone: string,
     }
-    resume?: string
+    
     colleges?: {
         trainningArea: string
         collegeName: string
@@ -22,6 +24,7 @@ type CvsDto = {
         title: string
         link: string
     }[]
+    
 }
 
 export default CvsDto

@@ -6,7 +6,6 @@ import {
   Get,
   Post,
   Body,
-  BadRequestException,
   Param,
   Delete,
   Req,
@@ -42,10 +41,20 @@ export class CvsController {
 
     const newCv: CvsDto = {
       name: 'new name',
-      userId: userId
+      userId: userId,
+      resume: '',
+      objectives: '',
+      personalDatas: {
+        birthday: '',
+        fullName: '',
+        location: '',
+        phone: ''
+      }
     }
-
+    
     let response = await this.cvsService.create(newCv)
+
+    console.log(response)
 
     return response
   }
@@ -164,11 +173,16 @@ export class CvsController {
 
     let cv = await this.cvsService.findById(cvId)
 
+    console.log(cv)
+
     if (!cv || cv["userId"] !== userId) {
       throw new UnauthorizedException('Unauthorized request');
     }
 
     let cvFild = cv[field]
+
+    console.log(cvFild)
+
 
     return cvFild;
   }
