@@ -81,7 +81,6 @@ export class UsersController {
 
       if (user.status !== "Active") {
           const confirmationCode:string = this.jwtService.sign({userId: user._id});
-          console.log(confirmationCode);
           const emailConfirmationLink = `http://localhost:3000/emailConfirmation/${confirmationCode}`;
           mailServices.sendConfirmationEmail(user.email, emailConfirmationLink, user.name);
           throw new UnauthorizedException("Pending Account. Please Verify Your Email!, a new link was sent in your email");
@@ -125,8 +124,6 @@ export class UsersController {
         }
 
         user.password = null
-
-        console.log(user)
 
         return user;
     }
