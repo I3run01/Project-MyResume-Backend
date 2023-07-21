@@ -11,8 +11,8 @@ export class Cvs {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ type: Object })
-  personalDatas: object;
+  @Prop()
+  personalDatas: object[];
 
   @Prop()
   resume: string;
