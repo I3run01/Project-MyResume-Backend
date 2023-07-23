@@ -76,6 +76,10 @@ export class Cvs {
 
   @Prop()
   socialMedias: SocialMedia[];
+
+  @Prop()
+  experinces: object[];
+
 }
 
 export const CvsSchema = SchemaFactory.createForClass(Cvs);

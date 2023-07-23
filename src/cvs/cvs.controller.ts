@@ -54,8 +54,8 @@ export class CvsController {
       colleges:[],
       languages:[],
       abilities:[],
-      socialMedias:[]
-
+      socialMedias:[],
+      experinces:[]
     }
     
     let response = await this.cvsService.create(newCv)

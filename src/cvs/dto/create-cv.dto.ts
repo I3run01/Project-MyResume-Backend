@@ -24,6 +24,7 @@ type CvsDto = {
         title: string
         link: string
     }[]
+    experinces: object[]
     
 }
 
