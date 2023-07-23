@@ -10,7 +10,8 @@ import {
   Delete,
   Req,
   Res,
-  UnauthorizedException 
+  UnauthorizedException,
+  BadRequestException
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 
@@ -49,7 +50,12 @@ export class CvsController {
         fullName: '',
         location: '',
         phone: ''
-      }
+      },
+      colleges:[],
+      languages:[],
+      abilities:[],
+      socialMedias:[]
+
     }
     
     let response = await this.cvsService.create(newCv)
@@ -142,6 +148,10 @@ export class CvsController {
     if (!data || !data['userId']) {
       throw new UnauthorizedException('Unauthorized request');
     }
+
+    if (body === null || body === undefined) {
+      throw new BadRequestException('body can not be null or undefiend');
+    }
     
     const userId = data['userId']
 
@@ -181,8 +191,8 @@ export class CvsController {
 
     let cvFild = cv[field]
 
+    console.log(field)
     console.log(cvFild)
-
 
     return cvFild;
   }
