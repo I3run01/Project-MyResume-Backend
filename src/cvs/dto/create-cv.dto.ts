@@ -1,6 +1,7 @@
 type CvsDto = {
     userId: string
     name: string
+    cvTitle: string
     resume: string
     objectives: string
     personalDatas?: {

@@ -43,6 +43,7 @@ export class CvsController {
     const newCv: CvsDto = {
       name: 'new name',
       userId: userId,
+      cvTitle: '',
       resume: '',
       objectives: '',
       personalDatas: {

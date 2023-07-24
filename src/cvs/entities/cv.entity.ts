@@ -56,6 +56,9 @@ export class Cvs {
   @Prop({ required: true })
   name: string;
 
+  @Prop({ required: true })
+  cvTitle: string;
+
   @Prop()
   resume: string;
 
