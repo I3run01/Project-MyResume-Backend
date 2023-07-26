@@ -56,7 +56,7 @@ export class Cvs {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ required: true })
+  @Prop()
   cvTitle: string;
 
   @Prop()
