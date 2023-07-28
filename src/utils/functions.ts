@@ -18,11 +18,13 @@ export const mailServices = {
     
     sendConfirmationEmail(email: string, link: string,  name?: string) {
         
-        const user = process.env.EMAIL_USER as string;
-        const pass = process.env.EMAIL_PASS as string;
+        const user = "brunnooa.v@gmail.com";
+        const pass = "BzDZYOc8pIbW4f1F";
 
         const transport = createTransport({
-            service: "outlook",
+            host: "smtp-relay.brevo.com",
+            port: 587,
+            secure: false, 
             auth: {
                 user: user,
                 pass: pass,
