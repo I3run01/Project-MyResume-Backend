@@ -18,8 +18,8 @@ export const mailServices = {
     
     sendConfirmationEmail(email: string, link: string,  name?: string) {
         
-        const user = "brunnooa.v@gmail.com";
-        const pass = "BzDZYOc8pIbW4f1F";
+        const user = "mine_group@outlook.com";
+        const pass = "MineGroup1515";
 
         const transport = createTransport({
             host: "smtp-relay.brevo.com",
