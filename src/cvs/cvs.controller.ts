@@ -22,23 +22,24 @@ export class CvsController {
     private readonly jwtService: JwtService
   ) {}
 
-  @Post('')
-  async createCv(
-    @Req() req: Request,
-    @Res({passthrough: true}) res: Response
-  ) {
-    const token = req.cookies['jwt']
+
+  private verifyAndGetUserId(req: Request): string {
+    const token = req.cookies['jwt'];
     const data = this.jwtService.decode(token);
 
     if (!data || !data['userId']) {
       throw new UnauthorizedException('Unauthorized request');
     }
-    
-    let userId = data['userId']
-    
-    if (!data) {
-      throw new UnauthorizedException('Unauthorized request');
-    }
+
+    return data['userId'];
+  }
+
+  @Post('')
+  async createCv(
+    @Req() req: Request,
+    @Res({passthrough: true}) res: Response
+  ) {
+    const userId = this.verifyAndGetUserId(req);
 
     const newCv: CvsDto = {
       name: 'new name',
@@ -71,18 +72,7 @@ export class CvsController {
     @Req() req: Request,
     @Res({passthrough: true}) res: Response
   ) {
-    const token = req.cookies['jwt']
-    const data = this.jwtService.decode(token);
-
-    if (!data || !data['userId']) {
-      throw new UnauthorizedException('Unauthorized request');
-    }
-    
-    let userId = data['userId']
-    
-    if (!data) {
-      throw new UnauthorizedException('Unauthorized request');
-    }
+    const userId = this.verifyAndGetUserId(req);
 
     let cvs = await this.cvsService.findByUserId(userId)
 
@@ -95,14 +85,8 @@ export class CvsController {
     @Param('cvId') cvId: string,
     @Res({passthrough: true}) res: Response
   ) {
-    const token = req.cookies['jwt']
-    const data = this.jwtService.decode(token);
+    const userId = this.verifyAndGetUserId(req);
 
-    if (!data || !data['userId']) {
-      throw new UnauthorizedException('Unauthorized request');
-    }
-    
-    const userId = data['userId']
     const cv = await this.cvsService.findById(cvId)
 
     if (!cv || cv["userId"] !== userId) {
@@ -119,14 +103,8 @@ export class CvsController {
     @Param('cvId') cvId: string,
     @Res({passthrough: true}) res: Response
   ) {
-    const token = req.cookies['jwt']
-    const data = this.jwtService.decode(token);
+    const userId = this.verifyAndGetUserId(req);
 
-    if (!data || !data['userId']) {
-      throw new UnauthorizedException('Unauthorized request');
-    }
-    
-    const userId = data['userId']
     const cv = await this.cvsService.findById(cvId)
 
     if (!cv || cv["userId"] !== userId) {
@@ -143,19 +121,12 @@ export class CvsController {
     @Param('field') field: string,
     @Body('body') body: any
   ) {
-    const token = req.cookies['jwt']
-    const data = this.jwtService.decode(token);
-    
-    if (!data || !data['userId']) {
-      throw new UnauthorizedException('Unauthorized request');
-    }
+    const userId = this.verifyAndGetUserId(req);
 
     if (body === null || body === undefined) {
       throw new BadRequestException('body can not be null or undefiend');
     }
     
-    const userId = data['userId']
-
     let cv = await this.cvsService.findById(cvId)
 
     if (!cv || cv["userId"] !== userId) {
@@ -173,14 +144,7 @@ export class CvsController {
     @Param('cvId') cvId: string,
     @Param('field') field: string,
   ) {
-    const token = req.cookies['jwt']
-    const data = this.jwtService.decode(token);
-    
-    if (!data || !data['userId']) {
-      throw new UnauthorizedException('Unauthorized request');
-    }
-    
-    const userId = data['userId']
+    const userId = this.verifyAndGetUserId(req);
 
     let cv = await this.cvsService.findById(cvId)
 
@@ -191,9 +155,6 @@ export class CvsController {
     }
 
     let cvFild = cv[field]
-
-    console.log(field)
-    console.log(cvFild)
 
     return cvFild;
   }
