@@ -162,5 +162,6 @@ describe('UsersService', () => {
       await expect(service.updatePassword(id, newPassword)).rejects.toThrow(new NotFoundException('User not found'));
     });
   });
-    
+  
+  
 });
