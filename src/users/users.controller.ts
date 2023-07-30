@@ -45,7 +45,7 @@ export class UsersController {
 
     if (user?.status !== "Active" && user) {
         const confirmationCode:string = this.jwtService.sign({userId: user._id});
-        const emailConfirmationLink = `http://localhost:3000/emailConfirmation/${confirmationCode}`;
+        const emailConfirmationLink = `https://iresume.cloud/emailConfirmation/${confirmationCode}`;
         mailServices.sendConfirmationEmail(user.email, emailConfirmationLink, user?.name);
 
         throw new UnauthorizedException("Pending Account. Please Verify Your Email!, a new link was sent to your email");
@@ -58,7 +58,7 @@ export class UsersController {
 
     const confirmationCode:string = this.jwtService.sign({userId: newUser._id});
 
-    const emailConfirmationLink = `http://localhost:3000/emailConfirmation/${confirmationCode}`;
+    const emailConfirmationLink = `https://iresume.cloud/emailConfirmation/${confirmationCode}`;
     mailServices.sendConfirmationEmail(createUserDto.email, emailConfirmationLink, createUserDto?.name);
 
     return newUser;
@@ -81,7 +81,7 @@ export class UsersController {
 
       if (user.status !== "Active") {
           const confirmationCode:string = this.jwtService.sign({userId: user._id});
-          const emailConfirmationLink = `http://localhost:3000/emailConfirmation/${confirmationCode}`;
+          const emailConfirmationLink = `https://iresume.cloud/emailConfirmation/${confirmationCode}`;
           mailServices.sendConfirmationEmail(user.email, emailConfirmationLink, user.name);
           throw new UnauthorizedException("Pending Account. Please Verify Your Email!, a new link was sent in your email");
       }
