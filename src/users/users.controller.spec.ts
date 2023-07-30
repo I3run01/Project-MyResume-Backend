@@ -7,7 +7,7 @@ import { User, UserDocument } from './entities/user.entity';
 import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { getModelToken } from '@nestjs/mongoose';
-import { UnauthorizedException, BadRequestException } from '@nestjs/common';
+import { UnauthorizedException, BadRequestException, NotFoundException} from '@nestjs/common';
 
 describe('UsersController', () => {
   let usersController: UsersController;
@@ -83,7 +83,7 @@ describe('UsersController', () => {
         status: 'Active',
       };
 
-      const existingUser: UserDocument = { _id: 'some-id', ...userDto } as any;
+      const existingUser: UserDocument = { _id: mockUser._id, ...userDto } as any;
       jest.spyOn(usersService, 'findByEmail').mockResolvedValueOnce(existingUser);
 
       await expect(usersController.signUp(userDto, { headers: {} } as any)).rejects.toThrow(BadRequestException);
@@ -98,10 +98,11 @@ describe('UsersController', () => {
         status: 'Pending',
       };
 
-      const pendingUser: UserDocument = { _id: 'some-id', ...userDto } as any;
+      const pendingUser: UserDocument = { _id: mockUser._id, ...userDto } as any;
       jest.spyOn(usersService, 'findByEmail').mockResolvedValueOnce(pendingUser);
 
       await expect(usersController.signUp(userDto, { headers: {} } as any)).rejects.toThrow(UnauthorizedException);
     });
   });
+
 });

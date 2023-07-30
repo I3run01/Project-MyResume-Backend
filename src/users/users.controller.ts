@@ -96,7 +96,7 @@ export class UsersController {
   }
 
   @Get('/')
-    async user(@Req() req: Request) {
+  async user(@Req() req: Request) {
         const token = req.cookies['jwt']
 
         let data = null;
@@ -126,10 +126,10 @@ export class UsersController {
         user.password = null
 
         return user;
-    }
+  }
 
   @Get('/confirm-email/:token')
-    async emailConfirmation(
+  async emailConfirmation(
       @Param('token') token: string,
       @Res({passthrough: true}) response: Response
     ) {
