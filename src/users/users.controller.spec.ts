@@ -4,7 +4,7 @@ import { UsersService } from './users.service';
 import { JwtService } from '@nestjs/jwt';
 import CreateUserDto from './dto/create-user.dto';
 import { User, UserDocument } from './entities/user.entity';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { getModelToken } from '@nestjs/mongoose';
 import { UnauthorizedException, BadRequestException } from '@nestjs/common';
@@ -13,6 +13,19 @@ describe('UsersController', () => {
   let usersController: UsersController;
   let usersService: UsersService;
   let jwtService: JwtService;
+
+  const mockUserDto: CreateUserDto = {
+    email: 'test@test.com',
+    password: 'password',
+    name: 'Test User',
+    avatarImage: 'test.png',
+    status: 'Active',
+  };
+
+  const mockUser: UserDocument = {
+    _id: new Types.ObjectId(),
+    ...mockUserDto,
+  } as any;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -40,7 +53,8 @@ describe('UsersController', () => {
   });
 
   describe('signUp', () => {
-    it('should sign up a user', async () => {
+    it('should create a user', async () => {
+
       const userDto: CreateUserDto = {
         email: 'test@test.com',
         password: 'password',
@@ -49,8 +63,9 @@ describe('UsersController', () => {
         status: 'Active',
       };
 
-      const hashedPassword = await bcrypt.hash(userDto.password, 10);
+      const hashedPassword = await bcrypt.hash(mockUser.password, 10);
       const newUser: UserDocument = { _id: 'some-id', ...userDto, password: hashedPassword } as any;
+
       jest.spyOn(usersService, 'findByEmail').mockResolvedValueOnce(null);
       jest.spyOn(usersService, 'create').mockResolvedValueOnce(newUser);
 
