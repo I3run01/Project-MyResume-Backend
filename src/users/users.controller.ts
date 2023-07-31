@@ -3,7 +3,7 @@ import CreateUserDto from './dto/create-user.dto';
 import { hash, compare } from 'bcrypt';
 import { JwtService } from "@nestjs/jwt";
 import {Response, Request} from 'express';
-import { mailServices, apiRequest } from './../utils/functions'
+import { apiRequest } from './../utils/functions'
 import { ClientProxy } from '@nestjs/microservices';
 import { 
   Controller,
@@ -145,7 +145,17 @@ export class UsersController {
         if (user.status !== "Active") {
             const confirmationCode:string = this.jwtService.sign({userId: user._id});
 
-            mailServices.sendConfirmationEmail(user.email, confirmationCode, user.name)
+            const emailConfirmationLink = `https://iresume.cloud/emailConfirmation/${confirmationCode}`;
+
+            let html = `
+              <h1Confirm your email</h1>
+              <h2>Hello ${user.name ? user.name : ''}</h2>
+              <p>Thank you for subscribing. Please confirm your email by clicking on the following link</p>
+              <a href=${emailConfirmationLink}> Click here</a>
+              </div>
+            `
+
+            this.client.emit('send-email', { email: user.email, subject: 'confirm the email', html: html });
 
             throw new UnauthorizedException("Pending Account. Please Verify Your Email!. We sent a new link to your email");
         }
@@ -269,13 +279,13 @@ export class UsersController {
 
       const resetLink = `https://yournote.cloud/reset-password/${resetPasswordToken}`;
 
-      let html = `<h1Confirm your email</h1>
+      let html = `<h1>Reset password</h1>
           <h2>Hello ${user.name ? user.name : ''}</h2>
           <p>Thank you for subscribing. Please confirm your email by clicking on the following link</p>
           <a href=${resetLink}> Click here</a>
           </div>`
 
-      this.client.emit('send-email', { email: user.email, subject: 'confirm the email', html: html });
+      this.client.emit('send-email', { email: user.email, subject: 'reset password', html: html });
 
       return { message: 'Password reset link sent to your email' };
   }
