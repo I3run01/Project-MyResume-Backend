@@ -47,8 +47,12 @@ export class UsersController {
 
     if (user?.status !== "Active" && user) {
         const confirmationCode:string = this.jwtService.sign({userId: user._id});
+        
         const emailConfirmationLink = `https://iresume.cloud/emailConfirmation/${confirmationCode}`;
-        mailServices.sendConfirmationEmail(user.email, emailConfirmationLink, user?.name);
+
+        this.client.emit('send-email', 'emailConfirmationLink')
+
+        // mailServices.sendConfirmationEmail(user.email, emailConfirmationLink, user?.name);
 
         throw new UnauthorizedException("Pending Account. Please Verify Your Email!, a new link was sent to your email");
     }
@@ -56,12 +60,16 @@ export class UsersController {
     if (user) throw new BadRequestException('User already exists');
 
     createUserDto.password = await hash(createUserDto.password, 10);
+    
     let newUser = await this.usersService.create(createUserDto);
 
     const confirmationCode:string = this.jwtService.sign({userId: newUser._id});
 
     const emailConfirmationLink = `https://iresume.cloud/emailConfirmation/${confirmationCode}`;
-    mailServices.sendConfirmationEmail(createUserDto.email, emailConfirmationLink, createUserDto?.name);
+
+    // mailServices.sendConfirmationEmail(createUserDto.email, emailConfirmationLink, createUserDto?.name);
+
+    this.client.emit('sendEmail', 'confirmationCode')
 
     return newUser;
   }
