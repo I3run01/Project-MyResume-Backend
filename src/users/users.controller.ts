@@ -50,7 +50,7 @@ export class UsersController {
         
         const emailConfirmationLink = `https://iresume.cloud/emailConfirmation/${confirmationCode}`;
 
-        this.client.emit('send-email', 'emailConfirmationLink')
+        this.client.emit('send-email', emailConfirmationLink)
 
         // mailServices.sendConfirmationEmail(user.email, emailConfirmationLink, user?.name);
 
@@ -69,7 +69,7 @@ export class UsersController {
 
     // mailServices.sendConfirmationEmail(createUserDto.email, emailConfirmationLink, createUserDto?.name);
 
-    this.client.emit('sendEmail', 'confirmationCode')
+    this.client.emit('sendEmail', emailConfirmationLink)
 
     return newUser;
   }
