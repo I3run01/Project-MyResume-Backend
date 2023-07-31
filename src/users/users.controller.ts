@@ -4,6 +4,7 @@ import { hash, compare } from 'bcrypt';
 import { JwtService } from "@nestjs/jwt";
 import {Response, Request} from 'express';
 import { mailServices, apiRequest } from './../utils/functions'
+import { ClientProxy } from '@nestjs/microservices';
 import { 
   Controller,
   Post,
@@ -15,14 +16,16 @@ import {
   Delete,
   NotFoundException,
   UnauthorizedException,
-  BadRequestException
+  BadRequestException,
+  Inject
 } from '@nestjs/common';
 
 @Controller('users')
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
-    private jwtService: JwtService
+    private jwtService: JwtService,
+    @Inject('UTILS_SERVICE') private client: ClientProxy,
   ) {}
 
   @Post('signup')
