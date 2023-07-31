@@ -50,9 +50,13 @@ export class UsersController {
         
         const emailConfirmationLink = `https://iresume.cloud/emailConfirmation/${confirmationCode}`;
 
-        this.client.emit('send-email', emailConfirmationLink)
+        let html = `<h1Confirm your email</h1>
+                    <h2>Hello ${user.name ? user.name : ''}</h2>
+                    <p>Thank you for subscribing. Please confirm your email by clicking on the following link</p>
+                    <a href=${emailConfirmationLink}> Click here</a>
+                    </div>`
 
-        // mailServices.sendConfirmationEmail(user.email, emailConfirmationLink, user?.name);
+        this.client.emit('send-email', { email: user.email, subject: 'confirm the email', html: html });
 
         throw new UnauthorizedException("Pending Account. Please Verify Your Email!, a new link was sent to your email");
     }
@@ -67,9 +71,13 @@ export class UsersController {
 
     const emailConfirmationLink = `https://iresume.cloud/emailConfirmation/${confirmationCode}`;
 
-    // mailServices.sendConfirmationEmail(createUserDto.email, emailConfirmationLink, createUserDto?.name);
+    let html = `<h1Confirm your email</h1>
+                <h2>Hello ${createUserDto.name ? createUserDto.name : ''}</h2>
+                <p>Thank you for subscribing. Please confirm your email by clicking on the following link</p>
+                <a href=${emailConfirmationLink}> Click here</a>
+                </div>`
 
-    this.client.emit('sendEmail', emailConfirmationLink)
+    this.client.emit('send-email', { email: createUserDto.email, subject: 'confirm the email', html: html });
 
     return newUser;
   }
@@ -89,9 +97,19 @@ export class UsersController {
       if (! await compare(password, user.password as string)) throw new UnauthorizedException('Invalid credentials');
 
       if (user.status !== "Active") {
+
           const confirmationCode:string = this.jwtService.sign({userId: user._id});
+          
           const emailConfirmationLink = `https://iresume.cloud/emailConfirmation/${confirmationCode}`;
-          mailServices.sendConfirmationEmail(user.email, emailConfirmationLink, user.name);
+
+          let html = `<h1Confirm your email</h1>
+          <h2>Hello ${user.name ? user.name : ''}</h2>
+          <p>Thank you for subscribing. Please confirm your email by clicking on the following link</p>
+          <a href=${emailConfirmationLink}> Click here</a>
+          </div>`
+
+          this.client.emit('send-email', { email: user.email, subject: 'confirm the email', html: html });
+
           throw new UnauthorizedException("Pending Account. Please Verify Your Email!, a new link was sent in your email");
       }
       
@@ -250,8 +268,14 @@ export class UsersController {
       let resetPasswordToken: string = this.jwtService.sign({userId: user._id});
 
       const resetLink = `https://yournote.cloud/reset-password/${resetPasswordToken}`;
-  
-      mailServices.sendConfirmationEmail(user.email, resetLink, user.name)
+
+      let html = `<h1Confirm your email</h1>
+          <h2>Hello ${user.name ? user.name : ''}</h2>
+          <p>Thank you for subscribing. Please confirm your email by clicking on the following link</p>
+          <a href=${resetLink}> Click here</a>
+          </div>`
+
+      this.client.emit('send-email', { email: user.email, subject: 'confirm the email', html: html });
 
       return { message: 'Password reset link sent to your email' };
   }
