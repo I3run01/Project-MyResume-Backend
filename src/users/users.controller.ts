@@ -28,7 +28,6 @@ export class UsersController {
   @Post('signup')
   async signUp(
     @Body() createUserDto: CreateUserDto,
-    @Req() request: Request
   ) {
 
     const { email, password } = createUserDto;
@@ -68,7 +67,6 @@ export class UsersController {
   async signIn(
     @Body('email') email: string,
     @Body('password') password: string,
-    @Req() request: Request,
     @Res({passthrough: true}) response: Response
   ) {
       if (!email || !password) throw new BadRequestException('Invalid credentials');

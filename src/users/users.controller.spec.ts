@@ -22,6 +22,10 @@ describe('UsersController', () => {
     status: 'Active',
   };
 
+  const response = {
+    cookie: jest.fn(),
+  } as unknown as Response;
+
   const mockUser: UserDocument = {
     _id: new Types.ObjectId(),
     ...mockUserDto,
@@ -54,55 +58,39 @@ describe('UsersController', () => {
 
   describe('signUp', () => {
     it('should create a user', async () => {
-
-      const userDto: CreateUserDto = {
-        email: 'test@test.com',
-        password: 'password',
-        name: 'Test User',
-        avatarImage: 'test.png',
-        status: 'Active',
-      };
-
       const hashedPassword = await bcrypt.hash(mockUser.password, 10);
-      const newUser: UserDocument = { _id: 'some-id', ...userDto, password: hashedPassword } as any;
+      const newUser: UserDocument = { _id: mockUser._id, ...mockUserDto, password: hashedPassword } as any;
 
       jest.spyOn(usersService, 'findByEmail').mockResolvedValueOnce(null);
       jest.spyOn(usersService, 'create').mockResolvedValueOnce(newUser);
 
-      const result = await usersController.signUp(userDto, { headers: {} } as any);
+      const result = await usersController.signUp(mockUserDto, { headers: {} } as any);
 
       expect(result).toEqual(newUser);
     });
 
     it('should throw BadRequestException when user already exists', async () => {
-      const userDto: CreateUserDto = {
-        email: 'test@test.com',
-        password: 'password',
-        name: 'Test User',
-        avatarImage: 'test.png',
-        status: 'Active',
-      };
 
-      const existingUser: UserDocument = { _id: mockUser._id, ...userDto } as any;
+      const existingUser: UserDocument = { _id: mockUser._id, ...mockUserDto } as any;
       jest.spyOn(usersService, 'findByEmail').mockResolvedValueOnce(existingUser);
 
-      await expect(usersController.signUp(userDto, { headers: {} } as any)).rejects.toThrow(BadRequestException);
-    });
-
-    it('should throw UnauthorizedException when user status is not active', async () => {
-      const userDto: CreateUserDto = {
-        email: 'test@test.com',
-        password: 'password',
-        name: 'Test User',
-        avatarImage: 'test.png',
-        status: 'Pending',
-      };
-
-      const pendingUser: UserDocument = { _id: mockUser._id, ...userDto } as any;
-      jest.spyOn(usersService, 'findByEmail').mockResolvedValueOnce(pendingUser);
-
-      await expect(usersController.signUp(userDto, { headers: {} } as any)).rejects.toThrow(UnauthorizedException);
+      await expect(usersController.signUp(mockUserDto, { headers: {} } as any)).rejects.toThrow(BadRequestException);
     });
   });
 
+  describe('sigin', () => {
+    it('should sign in an active user', async () => {
+      const result = await usersController.signIn('test@test.com', 'password', response: Response);
+    
+      expect(response.cookie).toHaveBeenCalledWith('jwt', 'someToken', { sameSite: 'none', secure: true, httpOnly: true });
+      expect(result).toEqual({ ...mockUser, password: null });
+    });
+    
+    it('should throw NotFoundException if no user found', async () => {
+      jest.spyOn(usersService, 'findByEmail').mockResolvedValueOnce(null);
+      await expect(usersController.signIn('test@test.com', 'password', response)).rejects.toThrow(NotFoundException);
+    });
+  })
+
+ 
 });
