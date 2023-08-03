@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { CvsController } from './cvs.controller';
+import { WordController } from './cvs.controller';
 
 @Module({
   imports: [],
-  controllers: [CvsController],
+  controllers: [WordController],
   providers: []
 })
 
-export class CvsModule {}
+export class WordModule {}

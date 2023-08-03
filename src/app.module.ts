@@ -4,6 +4,7 @@ import { AuthsModule } from './auths/auths.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { CvsModule } from './cvs/cvs.module';
+import { WordModule } from './word/cvs.module'; 
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { CvsModule } from './cvs/cvs.module';
     AuthsModule,
     UsersModule,
     CvsModule,
+    WordModule,
     MongooseModule.forRoot(process.env.MONGO_URL as string),
   ],
   controllers: [],

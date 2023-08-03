@@ -1,13 +1,12 @@
-import {Controller,Post,Req,Res} from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Controller, Post, Body } from '@nestjs/common';
 
-@Controller('cvs')
-export class CvsController {
+@Controller('word')
+export class WordController {
   constructor() {}
 
   @Post('')
-  async createCv(@Req() req: Request,@Res({passthrough: true}) res: Response  ) {
-  
-  }
+  async createCv(@Body() body: Object) {
 
+    console.log(body)
+  }
 }
