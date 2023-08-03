@@ -3,8 +3,8 @@ import CreateUserDto from './dto/create-user.dto';
 import { hash, compare } from 'bcrypt';
 import { JwtService } from "@nestjs/jwt";
 import {Response, Request} from 'express';
-import { apiRequest } from './../utils/functions'
 import { ClientProxy } from '@nestjs/microservices';
+import axios from 'axios'
 import { 
   Controller,
   Post,
@@ -229,15 +229,19 @@ export class UsersController {
 
       if(!googleToken) throw new BadRequestException('No token sent');
 
-      let googleUser = JSON.parse(await apiRequest.googleLogin(googleToken));
+      let response = await axios.get(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${googleToken}`, {
+        headers: {
+            Authorization: `Bearer ${googleToken}`,
+            Accept: 'application/json'
+        }
+      })
+        
+      let googleUser = response.data
 
       let user = null
-
       try {
         user = await this.usersService.findByEmail(googleUser.email);
-      } catch {
-        user = null
-      }
+      } catch {}
 
       if (!user) {
           let createUserDto: CreateUserDto = {
