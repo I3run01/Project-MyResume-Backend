@@ -1,6 +1,6 @@
 type ProjectDto = {
     userId: string
-    name: string
+    groupName: string
 }
 
 export default ProjectDto

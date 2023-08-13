@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import CreateProjectDto from './dto/create-project.dto';
 import { Projects, ProjectsDocument } from './entities/projects.entity';

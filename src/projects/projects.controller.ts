@@ -42,13 +42,11 @@ export class ProjectsController {
     const userId = this.verifyAndGetUserId(req);
 
     const newProject: projectsDto = {
-      name: 'name',
+      groupName: 'group name',
       userId: userId,
     }
     
     let response = await this.projectsService.create(newProject)
-
-    console.log(response)
 
     return response
   }
